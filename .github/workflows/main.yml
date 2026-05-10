@@ -8,13 +8,10 @@ jobs:
   afk-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Install
         run: npm install bedrock-protocol
@@ -24,25 +21,16 @@ jobs:
           node -e "
           const bedrock = require('bedrock-protocol');
           
-          console.log('Connecting to 163.5.201.8 on Port 12323...');
-
           const client = bedrock.createClient({
             host: '163.5.201.8', 
-            port: 12323, // Updated based on your screenshot
+            port: 12323, 
             username: 'AFK_Bot', 
             offline: true,
-            version: '1.21.0',
-            skipPing: true
+            version: '1.21.0'
           });
 
-          client.on('spawn', () => {
-            console.log('SUCCESS: AFK_Bot is in!');
-          });
-
-          client.on('error', (err) => {
-            console.log('Login Error:', err.message);
-          });
-
-          // Keep alive for 19 mins
+          client.on('spawn', () => console.log('SUCCESS: AFK_Bot is in!'));
+          client.on('error', (err) => console.log('FAIL:', err.message));
+          
           setTimeout(() => process.exit(0), 1140000); 
           "
