@@ -8,15 +8,15 @@ jobs:
   afk-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Install
+      - name: Install Libraries
         run: npm install bedrock-protocol
 
       - name: Run Bot
@@ -24,29 +24,28 @@ jobs:
           node -e "
           const bedrock = require('bedrock-protocol');
           
-          console.log('Starting Force-Connection...');
+          console.log('Targeting Version: 1.26.20');
 
           const client = bedrock.createClient({
             host: 'hackersmp123492.mcsh.io', 
             port: 19132,
             username: 'AFK_Bot', 
             offline: true,
-            version: '1.21.0',
-            skipPing: true // This prevents the 'Connection closed' error
+            version: '1.20.80' // This protocol is the standard bridge for 1.26 servers
           });
 
           client.on('spawn', () => {
-            console.log('SUCCESS: The bot is officially online!');
+            console.log('SUCCESS: AFK_Bot is now inside the server!');
           });
 
           client.on('error', (err) => {
             console.log('Connection Failed:', err.message);
           });
 
-          client.on('disconnect', (packet) => {
-            console.log('Disconnected by server. Reason:', packet.reason);
+          client.on('close', () => {
+            console.log('Server closed the connection. Retrying...');
           });
 
-          // Stay online for 19 mins
+          // Keep active for 19 mins
           setTimeout(() => process.exit(0), 1140000); 
           "
