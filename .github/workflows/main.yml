@@ -21,16 +21,30 @@ jobs:
           node -e "
           const bedrock = require('bedrock-protocol');
           
+          console.log('Attempting Heavy Handshake...');
+
           const client = bedrock.createClient({
             host: '163.5.201.8', 
             port: 12323, 
             username: 'AFK_Bot', 
             offline: true,
-            version: '1.21.0'
+            version: '1.21.0',
+            connectTimeout: 30000, // Wait longer for the server to answer
+            viewDistance: 4       // Mimic low-end device
           });
 
-          client.on('spawn', () => console.log('SUCCESS: AFK_Bot is in!'));
-          client.on('error', (err) => console.log('FAIL:', err.message));
-          
-          setTimeout(() => process.exit(0), 1140000); 
+          client.on('spawn', () => {
+            console.log('SUCCESS: BOT IS FINALLY IN!');
+          });
+
+          client.on('error', (err) => {
+            console.log('FAIL: ' + err.message);
+          });
+
+          client.on('close', () => console.log('Server kicked the bot.'));
+
+          setTimeout(() => {
+            console.log('19 mins finished.');
+            process.exit(0);
+          }, 1140000); 
           "
