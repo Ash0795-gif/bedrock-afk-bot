@@ -1,8 +1,8 @@
 name: Minecraft Bedrock AFK Bot
 on:
-  workflow_dispatch: # Allows you to start it manually
+  workflow_dispatch:
   schedule:
-    - cron: '*/20 * * * *' # Restarts every 20 mins to stay alive
+    - cron: '*/20 * * * *'
 
 jobs:
   afk-job:
@@ -17,19 +17,32 @@ jobs:
           node-version: '20'
 
       - name: Install Bot
-        run: npm install mineflayer prismarine-realms
+        run: npm install mineflayer mineflayer-bedrock
 
       - name: Run Bot
         run: |
           node -e "
           const mineflayer = require('mineflayer');
+          const bedrock = require('mineflayer-bedrock');
+          
           const bot = mineflayer.createBot({
             host: 'hackersmp123492.mcsh.io', 
             port: 19132,
             username: 'AFK_Bot',
-            version: '1.26.20' // Set this to your exact version
+            version: '1.20.10', 
+            bedrock: true
           });
-          bot.on('spawn', () => console.log('Bot joined the server!'));
-          bot.on('error', (err) => console.log(err));
-          setTimeout(() => process.exit(0), 1140000); // Runs for 19 mins
+
+          bot.on('spawn', () => {
+            console.log('SUCCESS: AFK_Bot has joined HACKERSMP123!');
+          });
+
+          bot.on('error', (err) => console.log('Connection Error:', err));
+          bot.on('kicked', (reason) => console.log('Bot was kicked because:', reason));
+          
+          // Auto-disconnect after 19 minutes so the next GitHub Action can take over
+          setTimeout(() => {
+            console.log('Rotating bot session...');
+            process.exit(0);
+          }, 1140000); 
           "
