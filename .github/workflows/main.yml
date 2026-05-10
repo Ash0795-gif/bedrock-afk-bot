@@ -1,22 +1,54 @@
-- name: Run Bot
+name: Minecraft Bedrock AFK Bot
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/20 * * * *'
+
+jobs:
+  afk-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Libraries
+        run: npm install bedrock-protocol
+
+      - name: Run Bot
         run: |
           node -e "
           const bedrock = require('bedrock-protocol');
           
+          console.log('Connecting to hackersmp123492.mcsh.io...');
+
           const client = bedrock.createClient({
             host: 'hackersmp123492.mcsh.io', 
             port: 19132,
-            username: 'AFK_Bot', // Forces the name we want
+            username: 'AFK_Bot', 
             offline: true,
-            version: '1.21.0' // Matches the protocol your console is asking for
+            version: '1.21.0'
           });
 
           client.on('spawn', () => {
-            console.log('BOT IS IN! Check the console for AFK_Bot.');
+            console.log('SUCCESS: AFK_Bot has joined the server!');
           });
 
-          client.on('error', (err) => console.log('Error:', err.message));
+          client.on('error', (err) => {
+            console.log('Connection Error:', err.message);
+          });
 
-          // Stay for 19 mins
-          setTimeout(() => process.exit(0), 1140000); 
+          client.on('kick', (reason) => {
+            console.log('Bot was kicked because:', reason);
+          });
+
+          // Keep the bot active for 19 minutes
+          setTimeout(() => {
+            console.log('Rotating bot session...');
+            process.exit(0);
+          }, 1140000); 
           "
