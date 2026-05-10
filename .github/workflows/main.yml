@@ -24,26 +24,29 @@ jobs:
           node -e "
           const bedrock = require('bedrock-protocol');
           
-          console.log('Forcing connection to hackersmp123492.mcsh.io...');
+          console.log('Starting Force-Connection...');
 
           const client = bedrock.createClient({
             host: 'hackersmp123492.mcsh.io', 
             port: 19132,
             username: 'AFK_Bot', 
             offline: true,
-            skipPing: false // Added to help the dashboard 'see' the bot
+            version: '1.21.0',
+            skipPing: true // This prevents the 'Connection closed' error
           });
 
           client.on('spawn', () => {
-            console.log('SUCCESS: AFK_Bot is officially in the world!');
+            console.log('SUCCESS: The bot is officially online!');
           });
 
           client.on('error', (err) => {
-            console.log('Error Log:', err.message);
+            console.log('Connection Failed:', err.message);
           });
 
-          client.on('close', () => console.log('Connection closed.'));
+          client.on('disconnect', (packet) => {
+            console.log('Disconnected by server. Reason:', packet.reason);
+          });
 
-          // Run for 19 mins
+          // Stay online for 19 mins
           setTimeout(() => process.exit(0), 1140000); 
           "
