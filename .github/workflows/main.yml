@@ -2,7 +2,7 @@ name: Minecraft Bedrock AFK Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/20 * * * *'
+    - cron: '*/15 * * * *' # Increased frequency to prevent sleep
 
 jobs:
   afk-job:
@@ -21,28 +21,29 @@ jobs:
           node -e "
           const bedrock = require('bedrock-protocol');
           
-          console.log('Using Mobile-Mask Connection on Port 13907...');
+          console.log('Attempting connection to 163.5.201.8:12323...');
 
           const client = bedrock.createClient({
             host: '163.5.201.8', 
-            port: 13907, // Switching to your secondary port allocation
+            port: 12323, 
             username: 'AFK_Bot', 
             offline: true,
-            version: '1.21.0',
-            raknetBackend: 'raknet-native' // Forces a more realistic network connection
+            version: '1.21.0', // Handshake for 1.26 servers
+            skipPing: false    // We WANT to ping to wake the server up
           });
 
           client.on('spawn', () => {
-            console.log('SUCCESS: THE BOT IS IN!');
+            console.log('SUCCESS: AFK_Bot is in the world!');
           });
 
           client.on('error', (err) => {
-            console.log('FAIL: ' + err.message);
+            console.log('REJECTED: ' + err.message);
           });
 
-          client.on('disconnect', (packet) => {
-            console.log('DISCONNECT REASON: ' + packet.message);
+          client.on('close', () => {
+            console.log('Connection closed by host. Retrying in next cycle...');
           });
 
-          setTimeout(() => process.exit(0), 1140000); 
+          // Run for 14 minutes
+          setTimeout(() => process.exit(0), 840000); 
           "
