@@ -14,7 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24' # Updated for 2026 standards
 
       - name: Install Bot
         run: npm install mineflayer mineflayer-bedrock
@@ -25,24 +25,32 @@ jobs:
           const mineflayer = require('mineflayer');
           const bedrock = require('mineflayer-bedrock');
           
+          console.log('Attempting to connect to hackersmp123492.mcsh.io...');
+
           const bot = mineflayer.createBot({
             host: 'hackersmp123492.mcsh.io', 
             port: 19132,
             username: 'AFK_Bot',
-            version: '1.20.10', 
+            version: false, // This forces the bot to auto-detect 1.26.20
             bedrock: true
           });
 
           bot.on('spawn', () => {
-            console.log('SUCCESS: AFK_Bot has joined HACKERSMP123!');
+            console.log('SUCCESS: Bot is now standing in the server!');
           });
 
-          bot.on('error', (err) => console.log('Connection Error:', err));
-          bot.on('kicked', (reason) => console.log('Bot was kicked because:', reason));
+          bot.on('error', (err) => {
+            console.error('CRITICAL ERROR:', err.message);
+            process.exit(1); 
+          });
+
+          bot.on('kicked', (reason) => {
+            console.log('Kicked by server:', reason);
+          });
           
-          // Auto-disconnect after 19 minutes so the next GitHub Action can take over
+          // Stay for 19 mins
           setTimeout(() => {
-            console.log('Rotating bot session...');
+            console.log('Shutting down bot for rotation.');
             process.exit(0);
           }, 1140000); 
           "
