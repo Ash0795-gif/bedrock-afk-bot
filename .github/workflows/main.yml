@@ -2,57 +2,53 @@ name: Minecraft Bedrock AFK Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' # Restarts every hour
+    - cron: '*/20 * * * *'
 
 jobs:
   afk-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Install Libraries
-        run: npm install mineflayer mineflayer-bedrock
+        run: npm install bedrock-protocol
 
-      - name: Run Force-Bot
+      - name: Run Bot
         run: |
           node -e "
-          const mineflayer = require('mineflayer');
-          const bedrock = require('mineflayer-bedrock');
-
+          const bedrock = require('bedrock-protocol');
+          
           console.log('Connecting to hackersmp123492.mcsh.io...');
 
-          const bot = mineflayer.createBot({
-            host: 'hackersmp123492.mcsh.io',
+          const client = bedrock.createClient({
+            host: 'hackersmp123492.mcsh.io', 
             port: 19132,
             username: 'AFK_Bot',
-            offline: true, // Crucial for non-Microsoft login
-            version: false, // Auto-detect version
-            bedrock: true
+            offline: true, // Crucial for MCServerHost
+            version: '1.20.10' // This protocol version is stable for 1.26 servers
           });
 
-          bot.on('spawn', () => {
-            console.log('Success! Bot is online.');
-            // Anti-AFK: Move head slightly every 30 seconds
-            setInterval(() => {
-              bot.look(Math.random() * 360, 0);
-            }, 30000);
+          client.on('spawn', () => {
+            console.log('SUCCESS: Bot has joined HACKERSMP123!');
           });
 
-          bot.on('error', (err) => {
-            console.error('Error:', err.message);
-            if (err.message.includes('version')) {
-               console.log('Try changing version to 1.20.80 or 1.21.0');
-            }
+          client.on('error', (err) => {
+            console.log('Connection Error:', err.message);
           });
 
-          bot.on('kicked', (reason) => console.log('Kicked:', reason));
+          client.on('kick', (reason) => {
+            console.log('Kicked:', reason);
+          });
 
-          // Run for 55 minutes
-          setTimeout(() => process.exit(0), 3300000);
+          // Run for 19 minutes
+          setTimeout(() => {
+            console.log('Session rotating...');
+            process.exit(0);
+          }, 1140000); 
           "
