@@ -21,30 +21,28 @@ jobs:
           node -e "
           const bedrock = require('bedrock-protocol');
           
-          console.log('Attempting Heavy Handshake...');
+          console.log('Using Mobile-Mask Connection on Port 13907...');
 
           const client = bedrock.createClient({
             host: '163.5.201.8', 
-            port: 12323, 
+            port: 13907, // Switching to your secondary port allocation
             username: 'AFK_Bot', 
             offline: true,
             version: '1.21.0',
-            connectTimeout: 30000, // Wait longer for the server to answer
-            viewDistance: 4       // Mimic low-end device
+            raknetBackend: 'raknet-native' // Forces a more realistic network connection
           });
 
           client.on('spawn', () => {
-            console.log('SUCCESS: BOT IS FINALLY IN!');
+            console.log('SUCCESS: THE BOT IS IN!');
           });
 
           client.on('error', (err) => {
             console.log('FAIL: ' + err.message);
           });
 
-          client.on('close', () => console.log('Server kicked the bot.'));
+          client.on('disconnect', (packet) => {
+            console.log('DISCONNECT REASON: ' + packet.message);
+          });
 
-          setTimeout(() => {
-            console.log('19 mins finished.');
-            process.exit(0);
-          }, 1140000); 
+          setTimeout(() => process.exit(0), 1140000); 
           "
