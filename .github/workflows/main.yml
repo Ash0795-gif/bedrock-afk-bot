@@ -1,11 +1,11 @@
-name: Minecraft Bedrock AFK Bot
+name: Minecraft Bedrock Keep-Alive
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *' # Increased frequency to prevent sleep
+    - cron: '*/15 * * * *'
 
 jobs:
-  afk-job:
+  ping-job:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
@@ -16,34 +16,21 @@ jobs:
       - name: Install
         run: npm install bedrock-protocol
 
-      - name: Run Bot
+      - name: Run Ping Bot
         run: |
           node -e "
           const bedrock = require('bedrock-protocol');
           
-          console.log('Attempting connection to 163.5.201.8:12323...');
-
-          const client = bedrock.createClient({
-            host: '163.5.201.8', 
-            port: 12323, 
-            username: 'AFK_Bot', 
-            offline: true,
-            version: '1.21.0', // Handshake for 1.26 servers
-            skipPing: false    // We WANT to ping to wake the server up
-          });
-
-          client.on('spawn', () => {
-            console.log('SUCCESS: AFK_Bot is in the world!');
-          });
-
-          client.on('error', (err) => {
-            console.log('REJECTED: ' + err.message);
-          });
-
-          client.on('close', () => {
-            console.log('Connection closed by host. Retrying in next cycle...');
-          });
-
-          // Run for 14 minutes
-          setTimeout(() => process.exit(0), 840000); 
+          async function keepAlive() {
+            for (let i = 0; i < 20; i++) { // Ping for ~10 minutes
+              try {
+                const response = await bedrock.ping({ host: '163.5.201.8', port: 12323 });
+                console.log('Ping Successful: Server is AWAKE. Players: ' + response.playersOnline);
+              } catch (e) {
+                console.log('Ping Failed: ' + e.message);
+              }
+              await new Promise(r => setTimeout(r, 30000));
+            }
+          }
+          keepAlive();
           "
